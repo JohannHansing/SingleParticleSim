@@ -85,12 +85,11 @@ private:
      * }
      * for looping over arrys/vectors
      */
-    std::vector<vector<CRod>> _rodvec; // vector to store polymer rods in cell, one vector stores polymers that are parallel to the same axis
+    std::array<vector<CRod> , 3> _rodvec; // vector to store polymer rods in cell, one vector stores polymers that are parallel to the same axis
     
 public:
     void initRodsVec(double n_rods=1){
         double xipos, xjpos;
-        _rodvec.resize(3);
         int Nrods[3]; // number of rods in certain plane, i.e. parallel to a certain axis.
         
         for (int i=0;i<3;i++){

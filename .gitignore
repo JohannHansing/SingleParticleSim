@@ -1,0 +1,6 @@
+Release/
+sim_data/
+CMakeLists.txt
+SingleParticleSimulation.cpp
+Debug/
+

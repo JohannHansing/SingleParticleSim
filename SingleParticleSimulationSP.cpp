@@ -268,7 +268,7 @@ string createDataFolder(bool ranRod, double timestep, double simtime, double pot
     sprintf(range, "%.3f", potRange);
     //In the definition of folder, the addition has to START WITH A STRING! for the compiler to know what to do (left to right).
     string folder = "sim_data/noreset";
-    if (!ranRod) folder = folder + "/ranRod";
+    if (ranRod) folder = folder + "/ranRod";
     if (randomPot) folder = folder + "/ranPot";
     if (steric) folder = folder + "/steric";    //TODO steric2
     if (potMod) folder = folder +  "/potMod";   //"/potMod";  TODO!!! Bessel

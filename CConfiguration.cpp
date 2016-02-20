@@ -173,61 +173,62 @@ void CConfiguration::calcMobilityForces(){
         int n = 0;     // reset counter for index of next rod in plane  n = 0, 1, 2, 3 -> only needed for ranPot
         for (int nk = _min; nk < _max; nk++){
             for (int ni = _min; ni < _max; ni++){
+                // if !ranRod, then _rodvec[i].size() == 0 
+                for (int irod=0;irod<_rodvec[plane].size();irod++){
                 
-                if (!_ranRod){
-                    r_i = _ppos[i] - ni*_boxsize;
-                    r_k = _ppos[k] - nk*_boxsize;
-                    //this is needed if we dont want the rods to cross each other to create a strong potential well
-                    if (plane == 0){
-                        r_i -= _rodDistance;
-                    }
-                    else if (plane == 1){
-                        r_k -= _rodDistance;
-                        r_i -= _rodDistance;
-                    }
-                }
-                else{
-
-                    for (int irod=0;irod<_rodvec[plane].size();irod++){
-                        r_i = _ppos[i] - _rodvec[plane][irod].coord[i];
-                        r_k = _ppos[k] - _rodvec[plane][irod].coord[k];
-                        assert ((_rodvec[plane][irod].coord[i] != 0) && "WARNING: Bad poly coordinate!\n"); //TODO debug
-                    }
-                }
-
-                r_abs = sqrt(r_i * r_i + r_k * r_k); //distance to the rods
-
-
-                if (_potMod) calculateExpPotentialMOD(r_abs, utmp, frtmp, plane);
-                else calculateExpPotential(r_abs, utmp, frtmp);
-                            
-                            if (_hpi) calculateExpHPI(r_abs, utmp, frtmp);
-
-                if (_ranU){
-                    utmp = utmp * _poly.get_sign(plane, n);
-                    frtmp = frtmp * _poly.get_sign(plane, n);
-                    if (_ppos[plane] > z2){
-                        if (! _poly.samesign(1, plane, n)){
-                            _f_mob[plane] += utmp * 4 / _boxsize;              //this takes care of the derivative of the potential modification and resulting force
-                            modifyPot(utmp, frtmp, _boxsize - _ppos[plane]);
+                    if (!_ranRod){
+                        r_i = _ppos[i] - ni*_boxsize;
+                        r_k = _ppos[k] - nk*_boxsize;
+                        //this is needed if we dont want the rods to cross each other to create a strong potential well
+                        if (plane == 0){
+                            r_i -= _rodDistance;
+                        }
+                        else if (plane == 1){
+                            r_k -= _rodDistance;
+                            r_i -= _rodDistance;
                         }
                     }
-                    else if (_ppos[plane] < z1){
-                        if (! _poly.samesign(-1, plane, n)){
-                            _f_mob[plane] -= utmp * 4 / _boxsize;              //this takes care of the derivative of the potential modification and resulting force
-                            modifyPot(utmp, frtmp, _ppos[plane]);
-                        }
+                    else{
+                            r_i = _ppos[i] - _rodvec[plane][irod].coord[i];
+                            r_k = _ppos[k] - _rodvec[plane][irod].coord[k];
+                            assert ((_rodvec[plane][irod].coord[i] != 0) && "WARNING: Bad poly coordinate!\n"); //TODO debug
                     }
-                    n++;  //index of next rod in curent plane
+
+                    r_abs = sqrt(r_i * r_i + r_k * r_k); //distance to the rods
+                    //if (r_abs > 2*sqrt(2)*_boxsize) cout << r_abs << endl;
+
+
+                    if (_potMod) calculateExpPotentialMOD(r_abs, utmp, frtmp, plane);
+                    else calculateExpPotential(r_abs, utmp, frtmp);
+                                
+                                if (_hpi) calculateExpHPI(r_abs, utmp, frtmp);
+
+                    if (_ranU){
+                        utmp = utmp * _poly.get_sign(plane, n);
+                        frtmp = frtmp * _poly.get_sign(plane, n);
+                        if (_ppos[plane] > z2){
+                            if (! _poly.samesign(1, plane, n)){
+                                _f_mob[plane] += utmp * 4 / _boxsize;              //this takes care of the derivative of the potential modification and resulting force
+                                modifyPot(utmp, frtmp, _boxsize - _ppos[plane]);
+                            }
+                        }
+                        else if (_ppos[plane] < z1){
+                            if (! _poly.samesign(-1, plane, n)){
+                                _f_mob[plane] -= utmp * 4 / _boxsize;              //this takes care of the derivative of the potential modification and resulting force
+                                modifyPot(utmp, frtmp, _ppos[plane]);
+                            }
+                        }
+                        n++;  //index of next rod in curent plane
+                    }
+
+
+                    if (_LJPot && ( r_abs < r_c || _hpi )) calcLJPot(r_abs, utmp, frtmp);
+
+
+                    Epot += utmp;
+                    _f_mob[i] += frtmp * r_i;
+                    _f_mob[k] += frtmp * r_k;
                 }
-
-
-                if (_LJPot && ( r_abs < r_c || _hpi )) calcLJPot(r_abs, utmp, frtmp);
-
-
-                Epot += utmp;
-                _f_mob[i] += frtmp * r_i;
-                _f_mob[k] += frtmp * r_k;
             }
         }
     }
