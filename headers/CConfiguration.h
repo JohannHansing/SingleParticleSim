@@ -12,6 +12,7 @@
 #include <boost/random/normal_distribution.hpp>
 #include <boost/math/special_functions/bessel.hpp>
 #include "CPolymers.h"
+#include "CRod.h"
 
 
 using namespace std;
