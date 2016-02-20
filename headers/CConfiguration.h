@@ -65,6 +65,62 @@ private:
 
 
     boost::mt19937 *m_igen;                      //generate instance of random number generator "twister".
+    
+    // NEW RandomMesh Stuff
+    /*TODO :
+     * Implement random number rods depending on n_rods.
+     * Test if I can use C++11 on sheldon. If so, use:
+     * for(auto& s: _polyvec[ortho[oa]]){
+     *    do smth with s;
+     *} 
+     * instead of  
+     * (int i=0;i<_polyvec[ortho[oa]].size();i++){
+     *     do smth with _polyvec[ortho[oa]][i]
+     * }
+     * for looping over arrys/vectors
+     */
+    bool _ranRod;
+    std::array<vector<CPolymers> ,3> _polyvec; // vector to store polymer rods in cell, one vector stores polymers that are parallel to the same axis
+    
+public:
+    void initPolyvec(double n_rods=1){
+        double xipos, xjpos;
+        int Nrods[3]; // number of rods in certain plane, i.e. parallel to a certain axis.
+        
+        for (int i=0;i<3;i++){
+            //TODO if random01()> ... MAKE Nrods[i] random
+            Nrods[i] =  9 * n_rods;// 3x3 cells in one plane -> 9*n_rods
+        }
+        for (int axis=0;axis<3;axis++){//axis 0 is x axis.
+            for (int i=0; i<Nrods[axis];i++){
+                xipos = random01() * 3*_boxsize;
+                xjpos = random01() * 3*_boxsize;
+                _polyvec[axis].push_back(CPolymers(axis, xipos, xjpos ));
+            }
+        }
+    }
+    void updatePolyvec(int crossaxis,int exitmarker){//exitmarker is -1 for negative direction, or 1 for positive
+        //delete all polymers orthogonal to crossaxis, that are outside the box now
+        //update other polymer positions
+        int ortho[2] = {1,2};
+        if (crossaxis == 1)    ortho[0]=2, ortho[1]=0;
+        else if (crossaxis == 2) ortho[2]=0, ortho[1]=1;
+        // shift positions of rods
+        for (int oa=0;oa<2;oa++){
+            for (int i=0;i<_polyvec[ortho[oa]].size();i++){
+                //shift rod positions parallel to crossaxis. ortho[oa] is direction that the shifted rods are parallel to.
+                _polyvec[ortho[oa]][i].coord[crossaxis] -= exitmarker * _boxsize;
+                if ((abs(_polyvec[ortho[oa]][i].coord[crossaxis] - _boxsize/2.  ) > 2*_boxsize){// TODO CHECK THIS AGAIN!
+                    //in direction parallel to crossaxis, choose new position in side cell 
+                    _polyvec[ortho[oa]][i].coord[crossaxis] = (random01()  + exitmarker) * _boxsize;
+                    int ortho2 = 3 - (ortho[oa] * crossaxis);
+                    // in direction orthogonal to both ortho[oa] and crossaxis
+                    _polyvec[ortho[oa]][i].coord[ortho2] = random01() * 3 * _boxsize;// TODO CHECK THIS AGAIN! Draw a sketch
+                }
+            }
+        }
+        
+    }
 
 
 
@@ -77,6 +133,10 @@ private:
     void modifyPot(double& U, double& Fr, double dist);
     void calcLJPot(const double r, double &U, double &dU);
     void initPosHisto();
+    double random01(){
+        uniform_01<&m_igen> dist(generator);
+        return dist();
+}
 
 
 

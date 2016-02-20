@@ -3,7 +3,15 @@
 using namespace std;
 
 
-CPolymers::CPolymers(){
+CPolymers::CPolymers(int ax, double xi, double xj){
+     = ax;
+    int ortho[2] = {1,2};
+    if (axis == 1)    ortho[0]=2, ortho[1]=0;
+    else if (axis == 2) ortho[2]=0, ortho[1]=1;
+    coord[axis] = 0;
+    coord[ortho[0]] =  xi;
+    coord[ortho[1]] =  xj;
+    
     //initiate Polymers by giving all 3*3*4 = 36 a random sign.
     setRanNumberGen(0);
     _sign.resize(3);

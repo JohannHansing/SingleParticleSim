@@ -21,12 +21,12 @@ using namespace std;
 
 //Function declarations
 string createDataFolder(
-        bool respos, double dt, double simtime, double potRange, double potStrength, double boxsize,
+        bool ranRod, double dt, double simtime, double potRange, double potStrength, double boxsize,
         double particlesize, double rDist, bool potMod, bool steric, bool randomPot, bool hpi, double hpi_u, double hpi_k);
 void settingsFile(
-        string folder, bool respos, double particlesize, double boxsize, double timestep, double runs, double steps,
+        string folder, bool ranRod, double particlesize, double boxsize, double timestep, double runs, double steps,
         double potStrength, double potRange, double rDist, bool potMod, bool recordMFP, bool steric, bool randomPot, bool hpi, double hpi_u, double hpi_k);
-void printReport(bool resetPos, int entry, int opposite, int sides, const double timestep[], const double urange[], const double ustrength[], const double rodDist[], const double particlesize[], unsigned int runs,
+void printReport(bool ranRod, int entry, int opposite, int sides, const double timestep[], const double urange[], const double ustrength[], const double rodDist[], const double particlesize[], unsigned int runs,
         int tsize, int rsize, int ssize, int dsize, int psize, bool potMod, bool steric, bool randomPot, bool hpi, double hpi_u, double hpi_k);
 
 template<typename T>
@@ -48,7 +48,7 @@ int main(int argc, const char* argv[]){
 
     //TRIGGERS:
     bool writeTrajectory = (strcmp(argv[1] , "true") == 0 ) ;    // relative position TODO
-    bool resetPos = (strcmp(argv[2] , "true") == 0 ) ;
+    bool ranRod = (strcmp(argv[2] , "true") == 0 ) ;
     bool potentialMod = (strcmp(argv[3] , "true") == 0 ) ;       //BESSEL TODO
     bool recordMFP = (strcmp(argv[4] , "true") == 0 ) ;
     bool recordPosHisto = (strcmp(argv[5] , "true") == 0 ) ;
@@ -82,13 +82,18 @@ int main(int argc, const char* argv[]){
 	double hpi_k = atof( argv[boolpar+10] );
     unsigned int saveInt;
     int instValIndex;                             //Counter for addInstantValue
+    
+    if (ranRod && ranPot){
+        cout << "This is not yet supported!" << endl;
+        return 3;
+    }
 
 	
 	
     //MFP
     double fpInt = boxsize/10;
 
-    //printReport(resetPos, conf.getwallcrossings(0), conf.getwallcrossings(1), conf.getwallcrossings(2), timestep, urange, ustrength, rodDist, particlesize, runs,
+    //printReport(ranRod, conf.getwallcrossings(0), conf.getwallcrossings(1), conf.getwallcrossings(2), timestep, urange, ustrength, rodDist, particlesize, runs,
     //            sizeOfArray(timestep), sizeOfArray(urange), sizeOfArray(ustrength), sizeOfArray(rodDist), sizeOfArray(particlesize), potentialMod, includeSteric);
 
 
@@ -98,7 +103,7 @@ int main(int argc, const char* argv[]){
     const int trajout = (int)(0.01/timestep);
         
     //Create data folders and print location as string to string "folder"
-    string folder = createDataFolder(resetPos, timestep, simtime, urange, ustrength, boxsize, particlesize, rodDist, potentialMod, includeSteric, ranPot, hpi, hpi_u, hpi_k);
+    string folder = createDataFolder(ranRod, timestep, simtime, urange, ustrength, boxsize, particlesize, rodDist, potentialMod, includeSteric, ranPot, hpi, hpi_u, hpi_k);
 
 
     //initialize averages
@@ -115,7 +120,7 @@ int main(int argc, const char* argv[]){
 
     //initialize instance of configuration
     CConfiguration conf = CConfiguration(timestep, urange, ustrength, boxsize, rodDist, potentialMod, particlesize, recordPosHisto, includeSteric,
-    ranPot, hpi , hpi_u, hpi_k);
+    ranPot, hpi , hpi_u, hpi_k, ranRod);
 
 
     //create file to save the trajectory
@@ -135,8 +140,7 @@ int main(int argc, const char* argv[]){
     for (int l = 0; l<runs; l++){
 
 
-        if (resetPos) conf.resetposition();         
-        else conf.updateStartpos();
+        conf.updateStartpos();
 
         instValIndex = 0;
         int fpCounter[3] = {0};                  //counter for first passage times (next point to pass first: fpCounter*fpInt
@@ -232,14 +236,14 @@ int main(int argc, const char* argv[]){
     
 
 
-    //printReport(resetPos, conf.getwallcrossings(0), conf.getwallcrossings(1), conf.getwallcrossings(2), timestep, urange, ustrength, rodDist, particlesize, runs,
+    //printReport(ranRod, conf.getwallcrossings(0), conf.getwallcrossings(1), conf.getwallcrossings(2), timestep, urange, ustrength, rodDist, particlesize, runs,
     //        sizeOfArray(timestep), sizeOfArray(urange), sizeOfArray(ustrength), sizeOfArray(rodDist), sizeOfArray(particlesize), potentialMod, includeSteric);
 
     
 	cout << "Simulation Finished" << endl;
 	
 	//If settingsFile is saved, then the simulation was successfull
-    settingsFile(folder, resetPos, particlesize, boxsize, timestep, runs, steps, ustrength, urange, rodDist, potentialMod, recordMFP, includeSteric, ranPot ,hpi, hpi_u, hpi_k);
+    settingsFile(folder, ranRod, particlesize, boxsize, timestep, runs, steps, ustrength, urange, rodDist, potentialMod, recordMFP, includeSteric, ranPot ,hpi, hpi_u, hpi_k);
 	
     trajectoryfile.close();
 	
@@ -257,15 +261,15 @@ int main(int argc, const char* argv[]){
 
 
 
-string createDataFolder(bool resetpos, double timestep, double simtime, double potRange, double potStrength,
+string createDataFolder(bool ranRod, double timestep, double simtime, double potRange, double potStrength,
         double boxsize, double particlesize, double rDist, bool potMod, bool steric, bool randomPot, bool hpi, double hpi_u, double hpi_k){
     //NOTE: Maybe I can leave out dt, as soon as I settled on a timestep
     //NOTE: As soon as I create input-list with variables, I must change this function
     char range[5];
     sprintf(range, "%.3f", potRange);
     //In the definition of folder, the addition has to START WITH A STRING! for the compiler to know what to do (left to right).
-    string folder = "sim_data";
-    if (!resetpos) folder = folder + "/noreset";
+    string folder = "sim_data/noreset";
+    if (!ranRod) folder = folder + "/ranRod";
     if (randomPot) folder = folder + "/ranPot";
     if (steric) folder = folder + "/steric";    //TODO steric2
     if (potMod) folder = folder +  "/potMod";   //"/potMod";  TODO!!! Bessel
@@ -285,14 +289,14 @@ string createDataFolder(bool resetpos, double timestep, double simtime, double p
 }
 
 
-void settingsFile(string folder, bool resetpos, double particlesize, double boxsize, double timestep, double runs, double steps, double potStrength, double potRange, double rDist,
+void settingsFile(string folder, bool ranRod, double particlesize, double boxsize, double timestep, double runs, double steps, double potStrength, double potRange, double rDist,
         bool potMod, bool recordMFP, bool steric, bool randomPot, bool hpi, double hpi_u, double hpi_k){
     //Creates a file where the simulation settings are stored
     //MAYBE ALSO INCLUDE TIME AND DATE!!
     ofstream settingsfile;
     settingsfile.open((folder + "/sim_Settings.txt").c_str());
     settingsfile << "Sim dir: " << folder << endl;
-    settingsfile << "ResetPos " << resetpos << endl;
+    settingsfile << "ranRod " << ranRod << endl;
     settingsfile << "potMod " << potMod << endl;//" (Bessel)" << endl;  //TODO Bessel!
     settingsfile << "recordMFP " << recordMFP << endl;
     settingsfile << "includesteric " << steric << endl;
