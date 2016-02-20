@@ -88,6 +88,12 @@ private:
     std::array<vector<CRod> , 3> _rodvec; // vector to store polymer rods in cell, one vector stores polymers that are parallel to the same axis
     
 public:
+    int ran_sign(){
+    // the variate generator uses _igen (int rand number generator),
+    // samples from uniform integer distribution 0, 1
+        boost::variate_generator<boost::mt19937&, boost::uniform_int<>> zeroone(*m_igen, boost::uniform_int<>(0, 1));
+	return (zeroone() * 2) - 1; //this calculation makes value either -1 or 1 
+}
     void initRodsVec(double n_rods=1){
         double xipos, xjpos;
         int Nrods[3]; // number of rods in certain plane, i.e. parallel to a certain axis.
@@ -98,8 +104,9 @@ public:
         }
         for (int axis=0;axis<3;axis++){//axis 0 is x axis.
             for (int i=0; i<Nrods[axis];i++){
-                xipos = (zerotoone() * 3 - 1) *_boxsize ;
-                xjpos = (zerotoone() * 3 - 1) *_boxsize;
+                // SO FAR SET INITAL RODS; SUCH THAT CENTRAL CELL IS EMPTY!
+                xipos = (zerotoone() + ran_sign()) *_boxsize;
+                xjpos = (zerotoone() + ran_sign()) *_boxsize;
                 CRod newRod = CRod(axis, xipos, xjpos );
                 _rodvec[axis].push_back(newRod);
             }

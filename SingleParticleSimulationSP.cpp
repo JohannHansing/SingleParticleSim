@@ -53,9 +53,9 @@ int main(int argc, const char* argv[]){
     bool recordMFP = (strcmp(argv[4] , "true") == 0 ) ;
     bool recordPosHisto = (strcmp(argv[5] , "true") == 0 ) ;
     bool includeSteric = (strcmp(argv[6] , "true") == 0 ) ;  // steric 2
-	bool ranPot = (strcmp(argv[7] , "true") == 0 ) ;
-	bool hpi = (strcmp(argv[8] , "true") == 0 ) ;          // hpi exp
-	int boolpar = 8;
+    bool ranPot = (strcmp(argv[7] , "true") == 0 ) ;
+    bool hpi = (strcmp(argv[8] , "true") == 0 ) ;          // hpi exp
+    int boolpar = 8;
 	
 	// Checking for correct structure of input arguments
 	for (int k= 0; k < argc; k++ ) cout << "parameter " << k << " " << argv[k] << endl;
@@ -83,8 +83,8 @@ int main(int argc, const char* argv[]){
     unsigned int saveInt;
     int instValIndex;                             //Counter for addInstantValue
     
-    if (ranRod && ranPot){
-        cout << "This is not yet supported!" << endl;
+    if (ranRod && (ranPot || includeSteric)){
+        cout << "ERROR !!!!!!!!!!!!!!!!!!! This is not yet supported!" << endl;
         return 3;
     }
 

@@ -27,9 +27,9 @@ CConfiguration::CConfiguration(
     _hpi = hpi;
     _upot = 0;
     _mu_sto = sqrt( 2 * _timestep );                 //timestep for stochastic force
-	_hpi = hpi; 
-	_hpi_u = hpi_u;
-	_hpi_k = hpi_k;
+    _hpi = hpi; 
+    _hpi_u = hpi_u;
+    _hpi_k = hpi_k;
     for (int i = 0; i < 3; i++){
         _ppos[i] = _resetpos;
         _startpos[i] = _resetpos;
@@ -54,7 +54,7 @@ CConfiguration::CConfiguration(
     setRanNumberGen(0);
 
     if (_ranRod){
-        initRodsVec();
+        initRodsVec();// SO FAR THE RODS ARE NOT INITIADED RANDOMLY; BUT SUCH THAT THE TRACER FITS FOR SURE FOR p <= 10
     }
 
 }
@@ -195,7 +195,7 @@ void CConfiguration::calcMobilityForces(){
                     }
 
                     r_abs = sqrt(r_i * r_i + r_k * r_k); //distance to the rods
-                    //if (r_abs > 2*sqrt(2)*_boxsize) cout << r_abs << endl;
+                    //if (r_abs < 0.9*_pradius) cout << "Small rho distace: " << r_abs << endl;
 
 
                     if (_potMod) calculateExpPotentialMOD(r_abs, utmp, frtmp, plane);
