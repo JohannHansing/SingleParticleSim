@@ -23,6 +23,7 @@ public:
     int axis; // rod parallel to axis 0 = x, axis 1 = y, etc.
     double coord[3]; // Coordinate of rod in 2D plane orthogonal to axis. the coord parallel to axis is always 0. (see initiaion)
     
+    CRod();
     CRod(int ax, double xi, double xj, int sign = 1){
         _sign = sign;
         axis = ax;

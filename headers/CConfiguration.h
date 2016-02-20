@@ -43,6 +43,7 @@ private:
     bool _LJPot;              // if true, then LJ interaction is calculated for steric hindrance
     bool _ranU;
     bool _hpi;
+    bool _ranRod;
 
     //COUNTERS AND INIT VALUES
     int _boxnumberXYZ[3];           //counter to calculate the actual position of the particle
@@ -65,6 +66,10 @@ private:
 
 
     boost::mt19937 *m_igen;                      //generate instance of random number generator "twister".
+    double zerotoone(){
+        uniform_01<&m_igen> dist(generator);
+        return dist();
+    }
     
     // NEW RandomMesh Stuff
     /*TODO :
@@ -79,7 +84,6 @@ private:
      * }
      * for looping over arrys/vectors
      */
-    bool _ranRod;
     std::array<vector<CRod> ,3> _rodvec; // vector to store polymer rods in cell, one vector stores polymers that are parallel to the same axis
     
 public:
@@ -103,8 +107,14 @@ public:
         //delete all polymers orthogonal to crossaxis, that are outside the box now
         //update other polymer positions
         int ortho[2] = {1,2};
-        if (crossaxis == 1)    ortho[0]=2, ortho[1]=0;
-        else if (crossaxis == 2) ortho[2]=0, ortho[1]=1;
+        if (crossaxis == 1){
+            ortho[0]=2; 
+            ortho[1]=0;
+        }
+        else if (crossaxis == 2){
+            ortho[0]=0; 
+            ortho[1]=1;
+        }
         // shift positions of rods
         for (int oa=0;oa<2;oa++){
             for (int i=0;i<_rodvec[ortho[oa]].size();i++){
@@ -133,10 +143,7 @@ private:
     void modifyPot(double& U, double& Fr, double dist);
     void calcLJPot(const double r, double &U, double &dU);
     void initPosHisto();
-    double zerotoone(){
-        uniform_01<&m_igen> dist(generator);
-        return dist();
-}
+    
 
 
 

@@ -179,6 +179,7 @@ void CConfiguration::calcMobilityForces(){
                         r_i = _ppos[i] - _polyvec[plane][i].coord[i];
                         r_k = _ppos[k] - _polyvec[plane][i].coord[k];
                         assert ((coord[i] != 0) && "WARNING: Bad poly coordinate!\n"); //TODO debug
+                    }
                 }
 
                 r_abs = sqrt(r_i * r_i + r_k * r_k); //distance to the rods
