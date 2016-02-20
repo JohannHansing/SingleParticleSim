@@ -1,6 +1,8 @@
 #ifndef CCONFIGURATION_H_
 #define CCONFIGURATION_H_
 
+
+#include <array>
 #include <string>
 #include <vector>
 #include <time.h>

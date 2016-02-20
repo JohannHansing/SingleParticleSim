@@ -3,4 +3,5 @@ sim_data/
 CMakeLists.txt
 SingleParticleSimulation.cpp
 Debug/
-
+.DS_Store
+._*

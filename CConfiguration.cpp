@@ -47,7 +47,11 @@ CConfiguration::CConfiguration(
         _min = 0;
         _max = 2;
     }
-        
+
+    if (_ranRod){
+        _min = 0;
+        _max = 1;
+    }
 
     // seed = 0:  use time, else any integer
     // init random number generator
