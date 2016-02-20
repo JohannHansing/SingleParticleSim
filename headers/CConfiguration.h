@@ -68,7 +68,7 @@ private:
 
     boost::mt19937 *m_igen;                      //generate instance of random number generator "twister".
     double zerotoone(){
-        uniform_01<&m_igen> dist(generator);
+        boost::uniform_01<boost::mt19937&> dist(*m_igen);
         return dist();
     }
     
@@ -121,7 +121,7 @@ public:
             for (int i=0;i<_rodvec[ortho[oa]].size();i++){
                 //shift rod positions parallel to crossaxis. ortho[oa] is direction that the shifted rods are parallel to.
                 _rodvec[ortho[oa]][i].coord[crossaxis] -= exitmarker * _boxsize;
-                if ((abs(_rodvec[ortho[oa]][i].coord[crossaxis] - _boxsize/2.  ) > 2*_boxsize){// TODO CHECK THIS AGAIN!
+                if (abs(_rodvec[ortho[oa]][i].coord[crossaxis] - _boxsize/2.  ) > 2*_boxsize){// TODO CHECK THIS AGAIN!
                     //in direction parallel to crossaxis, choose new position in side cell 
                     _rodvec[ortho[oa]][i].coord[crossaxis] = (zerotoone()  + exitmarker) * _boxsize;
                     int ortho2 = 3 - (ortho[oa] * crossaxis);
@@ -130,7 +130,6 @@ public:
                 }
             }
         }
-        
     }
 
 
