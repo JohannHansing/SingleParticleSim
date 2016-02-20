@@ -29,15 +29,12 @@ private:
     void printSign();
     void setRanNumberGen(double seed);
 
-public:
-    int axis; // rod parallel to axis 0 = x, axis 1 = y, etc.
-    double planeCoord[3]; // Coordinate of rod in 2D plane orthogonal to axis. the planCoordinate parallel to axis is always 0. (see initiaion)
-    
-    CPolymers(int ax, double xi, double xj);
+public:    
+    CPolymers();
     void shiftPolySign(const int , const int);
     bool samesign(const int direction, const int plane_axis, const int edgenumber);
     int get_sign(const int plane_axis, const int edgenumber);
-	void printSignFile(string a_w);
+    void printSignFile(string a_w);
 
 };
 

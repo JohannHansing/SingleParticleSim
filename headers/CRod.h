@@ -1,0 +1,40 @@
+/*
+ * CPolymers.h
+ *
+ *  Created on: Aug 9, 2013
+ *      Author: jh
+ */
+
+#ifndef CROD_H_
+#define CROD_H_
+
+#include <iostream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+
+class CRod {//TODO include CPolymers into this here, by setting random sign!
+private:
+
+public:
+    int _sign;
+    int axis; // rod parallel to axis 0 = x, axis 1 = y, etc.
+    double coord[3]; // Coordinate of rod in 2D plane orthogonal to axis. the coord parallel to axis is always 0. (see initiaion)
+    
+    CRod(int ax, double xi, double xj, int sign = 1){
+        _sign = sign;
+        axis = ax;
+        int ortho[2] = {1,2};
+        if (axis == 1)    ortho[0]=2, ortho[1]=0;
+        else if (axis == 2) ortho[2]=0, ortho[1]=1;
+        coord[axis] = 0;
+        coord[ortho[0]] =  xi;
+        coord[ortho[1]] =  xj;
+    }
+};
+
+
+
+#endif /* CROD_H_ */
