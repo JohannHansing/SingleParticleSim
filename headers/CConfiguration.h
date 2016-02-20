@@ -123,7 +123,7 @@ public:
             for (int i=0;i<_rodvec[ortho[oa]].size();i++){
                 //shift rod positions parallel to crossaxis. ortho[oa] is direction that the shifted rods are parallel to.
                 _rodvec[ortho[oa]][i].coord[crossaxis] -= exitmarker * _boxsize;
-                if (abs(_rodvec[ortho[oa]][i].coord[crossaxis] - _boxsize/2.  ) > 2*_boxsize){// TODO CHECK THIS AGAIN!
+                if (abs(_rodvec[ortho[oa]][i].coord[crossaxis] - _boxsize/2.  ) > 1.5*_boxsize){// TODO CHECK THIS AGAIN!
                     //in direction parallel to crossaxis, choose new position in side cell 
                     _rodvec[ortho[oa]][i].coord[crossaxis] = (zerotoone()  + exitmarker) * _boxsize;
                     int ortho2 = 3 - (ortho[oa] * crossaxis);
@@ -132,6 +132,16 @@ public:
                 }
             }
         }
+    }
+    
+    void prinRodPos(int axis){
+        for (int irod=0;irod<_rodvec[axis].size();irod++){
+            double rx = _rodvec[axis][irod].coord[0];
+            double ry =_rodvec[axis][irod].coord[1];     
+            double rz =_rodvec[axis][irod].coord[2];
+            cout << ",[" << rx << "," << ry << "," << rz << "]";
+        }
+        cout << "]," << endl;
     }
 
 

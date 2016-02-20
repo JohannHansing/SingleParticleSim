@@ -88,21 +88,28 @@ void CConfiguration::makeStep(){
 
 void CConfiguration::checkBoxCrossing(){
     //should the particle cross the confinement of the cube, let it appear on the opposite side of the box
+    int exitmarker = 0;
     for (int i = 0; i < 3; i++){
+        exitmarker =0;
         if (_ppos[i] < 0){
             _ppos[i] += _boxsize;
             _boxnumberXYZ[i] -= 1;
-            countWallCrossing(i, -1);
-            if (_ranU) _poly.shiftPolySign(i, -1);
-            if (_ranRod) updateRodsVec(i, -1);
+            exitmarker = -1;
 
         }
         else if (_ppos[i] > _boxsize){
             _ppos[i] -= _boxsize;
             _boxnumberXYZ[i] += 1;
-            countWallCrossing(i, 1);
-            if (_ranU) _poly.shiftPolySign(i, 1);
-            if (_ranRod) updateRodsVec(i, 1);
+            exitmarker = 1;
+        }
+        if (exitmarker!=0){
+            countWallCrossing(i, exitmarker);
+            if (_ranU) _poly.shiftPolySign(i, exitmarker);
+            if (_ranRod){
+                updateRodsVec(i, exitmarker);
+                //cout << "[["<<i<<"," << exitmarker <<"] ";
+                //prinRodPos(0); // cout print rod pos!
+            }
         }
     }
 }
