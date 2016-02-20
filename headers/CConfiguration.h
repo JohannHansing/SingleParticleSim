@@ -85,11 +85,12 @@ private:
      * }
      * for looping over arrys/vectors
      */
-    std::array<vector<CRod> ,3> _rodvec; // vector to store polymer rods in cell, one vector stores polymers that are parallel to the same axis
+    std::vector<vector<CRod>> _rodvec; // vector to store polymer rods in cell, one vector stores polymers that are parallel to the same axis
     
 public:
     void initRodsVec(double n_rods=1){
         double xipos, xjpos;
+        _rodvec.resize(3);
         int Nrods[3]; // number of rods in certain plane, i.e. parallel to a certain axis.
         
         for (int i=0;i<3;i++){
@@ -100,7 +101,8 @@ public:
             for (int i=0; i<Nrods[axis];i++){
                 xipos = zerotoone() * 3*_boxsize;
                 xjpos = zerotoone() * 3*_boxsize;
-                _rodvec[axis].push_back(CRod(axis, xipos, xjpos ));
+                CRod newRod = CRod(axis, xipos, xjpos );
+                _rodvec[axis].push_back(newRod);
             }
         }
     }
@@ -152,7 +154,7 @@ public:
     CConfiguration();
     CConfiguration(
             double timestep,  double potRange,  double potStrength,  double boxsize, double rodDistance, const bool potMod, double psize,
-            const bool posHisto, const bool steric, const bool ranU,  bool hpi, double hpi_u, double hpi_k);
+            const bool posHisto, const bool steric, const bool ranU,  bool hpi, double hpi_u, double hpi_k, bool ranRods);
     void resetParameters(double timestep, double potRange, double potStrength, double boxsize);
     void updateStartpos();
     void resetposition();

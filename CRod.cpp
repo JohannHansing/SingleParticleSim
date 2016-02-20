@@ -11,8 +11,8 @@ CRod::CRod(){
     coord[2] =  0;
 }
 
-CRod::CRod(int ax, double xi, double xj, int sign = 1){
-    _sign = sign;
+CRod::CRod(int ax, double xi, double xj){
+    _sign = 1;
     axis = ax;
     int ortho[2] = {1,2};
     if (axis == 1)    ortho[0]=2, ortho[1]=0;

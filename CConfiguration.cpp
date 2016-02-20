@@ -53,6 +53,9 @@ CConfiguration::CConfiguration(
     // init random number generator
     setRanNumberGen(0);
 
+    if (_ranRod){
+        initRodsVec();
+    }
 
 }
 
@@ -91,6 +94,7 @@ void CConfiguration::checkBoxCrossing(){
             _boxnumberXYZ[i] -= 1;
             countWallCrossing(i, -1);
             if (_ranU) _poly.shiftPolySign(i, -1);
+            if (_ranRod) updateRodsVec(i, -1);
 
         }
         else if (_ppos[i] > _boxsize){
@@ -98,6 +102,7 @@ void CConfiguration::checkBoxCrossing(){
             _boxnumberXYZ[i] += 1;
             countWallCrossing(i, 1);
             if (_ranU) _poly.shiftPolySign(i, 1);
+            if (_ranRod) updateRodsVec(i, 1);
         }
     }
 }
@@ -175,10 +180,11 @@ void CConfiguration::calcMobilityForces(){
                     }
                 }
                 else{
-                    for (int i=0;i<_polyvec[plane].size();i++){
-                        r_i = _ppos[i] - _polyvec[plane][i].coord[i];
-                        r_k = _ppos[k] - _polyvec[plane][i].coord[k];
-                        assert ((coord[i] != 0) && "WARNING: Bad poly coordinate!\n"); //TODO debug
+cout << "1" << endl;
+                    for (int i=0;i<_rodvec[plane].size();i++){
+                        r_i = _ppos[i] - _rodvec[plane][i].coord[i];
+                        r_k = _ppos[k] - _rodvec[plane][i].coord[k];
+                        assert ((_rodvec[plane][i].coord[i] != 0) && "WARNING: Bad poly coordinate!\n"); //TODO debug
                     }
                 }
 
