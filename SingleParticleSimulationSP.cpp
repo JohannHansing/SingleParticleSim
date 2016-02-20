@@ -151,9 +151,7 @@ int main(int argc, const char* argv[]){
 
             conf.calcStochasticForces();
 
-            cout << "calc mob" << endl;
             conf.calcMobilityForces();
-cout << "done calc mob" << endl;
 
 
             if (((i+1)%100 == 0) && (l == 0) && writeTrajectory){       //Save the first trajectory to file

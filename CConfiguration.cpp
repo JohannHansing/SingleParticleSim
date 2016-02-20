@@ -180,7 +180,7 @@ void CConfiguration::calcMobilityForces(){
                     }
                 }
                 else{
-cout << "1" << endl;
+
                     for (int i=0;i<_rodvec[plane].size();i++){
                         r_i = _ppos[i] - _rodvec[plane][i].coord[i];
                         r_k = _ppos[k] - _rodvec[plane][i].coord[k];
