@@ -104,9 +104,10 @@ public:
         }
         for (int axis=0;axis<3;axis++){//axis 0 is x axis.
             for (int i=0; i<Nrods[axis];i++){
-                // SO FAR SET INITAL RODS; SUCH THAT CENTRAL CELL IS EMPTY!
-                xipos = (zerotoone() + ran_sign()) *_boxsize;
-                xjpos = (zerotoone() + ran_sign()) *_boxsize;
+                // SO FAR SET INITAL RODS; SUCH THAT CENTRAL CELL * 1.7 IS EMPTY! 
+                // ran_sign()*.15*zerotoone() + 0.5 + 1.35 * ran_sign() is between .15+1.35+0.5 = 2 and -.15+1.35+0.5 = 1.7 or between .15-1.35+0.5 = -0.7 and -.15-1.35+0.5 = -1
+                xipos = (ran_sign()*.15*zerotoone() + 0.5 + 1.35 * ran_sign() ) *_boxsize;
+                xjpos = (ran_sign()*.15*zerotoone() + 0.5 + 1.35 * ran_sign() ) *_boxsize;
                 CRod newRod = CRod(axis, xipos, xjpos );
                 _rodvec[axis].push_back(newRod);
             }
