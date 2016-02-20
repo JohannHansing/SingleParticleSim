@@ -181,10 +181,10 @@ void CConfiguration::calcMobilityForces(){
                 }
                 else{
 
-                    for (int i=0;i<_rodvec[plane].size();i++){
-                        r_i = _ppos[i] - _rodvec[plane][i].coord[i];
-                        r_k = _ppos[k] - _rodvec[plane][i].coord[k];
-                        assert ((_rodvec[plane][i].coord[i] != 0) && "WARNING: Bad poly coordinate!\n"); //TODO debug
+                    for (int irod=0;irod<_rodvec[plane].size();irod++){
+                        r_i = _ppos[i] - _rodvec[plane][irod].coord[i];
+                        r_k = _ppos[k] - _rodvec[plane][irod].coord[k];
+                        assert ((_rodvec[plane][irod].coord[i] != 0) && "WARNING: Bad poly coordinate!\n"); //TODO debug
                     }
                 }
 

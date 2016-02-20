@@ -99,8 +99,8 @@ public:
         }
         for (int axis=0;axis<3;axis++){//axis 0 is x axis.
             for (int i=0; i<Nrods[axis];i++){
-                xipos = zerotoone() * 3*_boxsize;
-                xjpos = zerotoone() * 3*_boxsize;
+                xipos = (zerotoone() * 3 - 1) *_boxsize ;
+                xjpos = (zerotoone() * 3 - 1) *_boxsize;
                 CRod newRod = CRod(axis, xipos, xjpos );
                 _rodvec[axis].push_back(newRod);
             }
@@ -128,7 +128,7 @@ public:
                     _rodvec[ortho[oa]][i].coord[crossaxis] = (zerotoone()  + exitmarker) * _boxsize;
                     int ortho2 = 3 - (ortho[oa] * crossaxis);
                     // in direction orthogonal to both ortho[oa] and crossaxis
-                    _rodvec[ortho[oa]][i].coord[ortho2] = zerotoone() * 3 * _boxsize;// TODO CHECK THIS AGAIN! Draw a sketch
+                    _rodvec[ortho[oa]][i].coord[ortho2] = (zerotoone() * 3 -1) * _boxsize;// TODO CHECK THIS AGAIN! Draw a sketch
                 }
             }
         }
