@@ -11,7 +11,7 @@ CConfiguration::CConfiguration(){
 
 CConfiguration::CConfiguration(
         double timestep,  double potRange,  double potStrength,  double boxsize, double rodDistance, const bool potMod,
-        double psize, const bool posHisto, const bool steric, const bool ranU, bool hpi, double hpi_u, double hpi_k, bool ranRod){
+        double psize, const bool posHisto, const bool steric, const bool ranU, bool hpi, double hpi_u, double hpi_k, bool ranRod, double n_rods){
     _potRange = potRange;
     _potStrength = potStrength;
     _pradius = psize/2;
@@ -21,6 +21,7 @@ CConfiguration::CConfiguration(
     _rodDistance = rodDistance;
     _potMod = potMod;
     _ranRod = ranRod;
+    _n_rods = n_rods;
     _LJPot = (steric == false) && (psize != 0);
     _ranU = ranU;
     _poly = CPolymers();

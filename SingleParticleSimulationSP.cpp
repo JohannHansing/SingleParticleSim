@@ -1,43 +1,7 @@
-
-#include <stdlib.h>     /* exit, EXIT_FAILURE */
-#include <string.h>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <math.h>
-#include <boost/filesystem.hpp>
-#include "headers/CAverage.h"
-#include "headers/CConfiguration.h"
+#include "headers/SingleParticleSimulationSP.h"
 
 
 using namespace std;
-
-//ISSUES:
-//Size of int large enough for large numbers such as steps???
-//fopen() fclose() each time that write XYZtraj is called? -> slow
-//rounding errors when calculating int steps = int simtime / double timestep
-
-
-
-//Function declarations
-string createDataFolder(
-        bool ranRod, double dt, double simtime, double potRange, double potStrength, double boxsize,
-        double particlesize, double rDist, bool potMod, bool steric, bool randomPot, bool hpi, double hpi_u, double hpi_k);
-void settingsFile(
-        string folder, bool ranRod, double particlesize, double boxsize, double timestep, double runs, double steps,
-        double potStrength, double potRange, double rDist, bool potMod, bool recordMFP, bool steric, bool randomPot, bool hpi, double hpi_u, double hpi_k);
-void printReport(bool ranRod, int entry, int opposite, int sides, const double timestep[], const double urange[], const double ustrength[], const double rodDist[], const double particlesize[], unsigned int runs,
-        int tsize, int rsize, int ssize, int dsize, int psize, bool potMod, bool steric, bool randomPot, bool hpi, double hpi_u, double hpi_k);
-
-template<typename T>
-string toString(const T& value);
-
-template <typename T, size_t N>
-inline
-size_t sizeOfArray( const T(&)[ N ] );
-
-
-
 
 
 int main(int argc, const char* argv[]){
@@ -78,8 +42,9 @@ int main(int argc, const char* argv[]){
     double particlesize = atof( argv[boolpar+6] );
     double urange = atof( argv[boolpar+7] );
     double ustrength = atof( argv[boolpar+8] );
-	double hpi_u = atof( argv[boolpar+9] );
-	double hpi_k = atof( argv[boolpar+10] );
+    double hpi_u = atof( argv[boolpar+9] );
+    double hpi_k = atof( argv[boolpar+10] );
+    double n_rods = atof( argv[boolpar+11] );
     unsigned int saveInt;
     int instValIndex;                             //Counter for addInstantValue
     
@@ -103,7 +68,7 @@ int main(int argc, const char* argv[]){
     const int trajout = (int)(10/timestep);
         
     //Create data folders and print location as string to string "folder"
-    string folder = createDataFolder(ranRod, timestep, simtime, urange, ustrength, boxsize, particlesize, rodDist, potentialMod, includeSteric, ranPot, hpi, hpi_u, hpi_k);
+    string folder = createDataFolder(ranRod, timestep, simtime, urange, ustrength, boxsize, particlesize, rodDist, potentialMod, includeSteric, ranPot, hpi, hpi_u, hpi_k, n_rods);
 
 
     //initialize averages
@@ -120,7 +85,7 @@ int main(int argc, const char* argv[]){
 
     //initialize instance of configuration
     CConfiguration conf = CConfiguration(timestep, urange, ustrength, boxsize, rodDist, potentialMod, particlesize, recordPosHisto, includeSteric,
-    ranPot, hpi , hpi_u, hpi_k, ranRod);
+    ranPot, hpi , hpi_u, hpi_k, ranRod, n_rods);
 
 
     //create file to save the trajectory
@@ -138,7 +103,6 @@ int main(int argc, const char* argv[]){
 
 // **************START OF RUNS-LOOP
     for (int l = 0; l<runs; l++){
-
 
         conf.updateStartpos();
 
@@ -217,7 +181,10 @@ int main(int argc, const char* argv[]){
         }
         if ( recordPosHisto ) conf.printHistoMatrix(folder);
         
+        
     }//----------END OF RUNS-LOOP
+    
+    conf.printAvRods();
 
 
 
@@ -239,96 +206,12 @@ int main(int argc, const char* argv[]){
     //        sizeOfArray(timestep), sizeOfArray(urange), sizeOfArray(ustrength), sizeOfArray(rodDist), sizeOfArray(particlesize), potentialMod, includeSteric);
 
     
-	cout << "Simulation Finished" << endl;
-	
-	//If settingsFile is saved, then the simulation was successfull
-    settingsFile(folder, ranRod, particlesize, boxsize, timestep, runs, steps, ustrength, urange, rodDist, potentialMod, recordMFP, includeSteric, ranPot ,hpi, hpi_u, hpi_k);
+    cout << "Simulation Finished" << endl;
+    
+    //If settingsFile is saved, then the simulation was successfull
+    settingsFile(folder, ranRod, particlesize, boxsize, timestep, runs, steps, ustrength, urange, rodDist, potentialMod, recordMFP, includeSteric, ranPot ,hpi, hpi_u, hpi_k, n_rods);
 	
     trajectoryfile.close();
 	
     return 0;
-}
-
-
-
-//--------------------------------------------------------------------------
-//**************************************************************************
-//--------------------------------------------------------------------------
-
-
-
-
-
-
-string createDataFolder(bool ranRod, double timestep, double simtime, double potRange, double potStrength,
-        double boxsize, double particlesize, double rDist, bool potMod, bool steric, bool randomPot, bool hpi, double hpi_u, double hpi_k){
-    //NOTE: Maybe I can leave out dt, as soon as I settled on a timestep
-    //NOTE: As soon as I create input-list with variables, I must change this function
-    char range[5];
-    sprintf(range, "%.3f", potRange);
-    //In the definition of folder, the addition has to START WITH A STRING! for the compiler to know what to do (left to right).
-    string folder = "sim_data/noreset";
-    if (ranRod) folder = folder + "/ranRod";
-    if (randomPot) folder = folder + "/ranPot";
-    if (steric) folder = folder + "/steric";    //TODO steric2
-    if (potMod) folder = folder +  "/potMod";   //"/potMod";  TODO!!! Bessel
-	if (hpi) folder = folder + "/HPI/hpiu" + toString(hpi_u) + "/hpik" + toString(hpi_k);
-    folder = folder
-            + "/dt" + toString(timestep)
-            + "/t" + toString(simtime)
-            + "/d" + toString(rDist)
-            + "/b" + toString(boxsize)
-            + "/p" + toString(particlesize)
-            + "/k" + range
-            + "/u" + toString(potStrength);
-    boost::filesystem::create_directories(folder);
-    boost::filesystem::create_directory(folder + "/InstantValues");
-    boost::filesystem::create_directory(folder + "/Coordinates");
-    return folder;
-}
-
-
-void settingsFile(string folder, bool ranRod, double particlesize, double boxsize, double timestep, double runs, double steps, double potStrength, double potRange, double rDist,
-        bool potMod, bool recordMFP, bool steric, bool randomPot, bool hpi, double hpi_u, double hpi_k){
-    //Creates a file where the simulation settings are stored
-    //MAYBE ALSO INCLUDE TIME AND DATE!!
-    ofstream settingsfile;
-    settingsfile.open((folder + "/sim_Settings.txt").c_str());
-    settingsfile << "Sim dir: " << folder << endl;
-    settingsfile << "ranRod " << ranRod << endl;
-    settingsfile << "potMod " << potMod << endl;//" (Bessel)" << endl;  //TODO Bessel!
-    settingsfile << "recordMFP " << recordMFP << endl;
-    settingsfile << "includesteric " << steric << endl;
-	settingsfile << "ranPot " << randomPot  << endl;
-	settingsfile << "HPI " << hpi  << endl;
-	if (hpi == true){
-		settingsfile << "hpi_u " << randomPot  << endl;
-		settingsfile << "hpi_ k " << randomPot  << endl;
-    }
-    settingsfile << "d " << rDist << endl;
-    settingsfile << "p " << particlesize << endl;
-	settingsfile << "b " << boxsize << endl;
-    settingsfile << "dt " << timestep  << endl << "runs " << runs << endl << "steps " << steps << endl << "time: " << timestep*steps << endl;
-    settingsfile << "k " << potRange << endl << "U_0 " << potStrength << endl;
-    
-    settingsfile.close();
-}
-
-
-
-
-
-
-template<typename T>
-string toString(const T& value){
-    ostringstream oss;
-    oss << value;
-    return oss.str();
-}
-
-template <typename T, size_t N>
-inline
-size_t sizeOfArray( const T(&)[ N ] )
-{
-  return N;
 }
