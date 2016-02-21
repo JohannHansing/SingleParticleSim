@@ -89,6 +89,9 @@ private:
      */
     std::array<vector<CRod> , 3> _rodvec; // vector to store polymer rods in cell, one vector stores polymers that are parallel to the same axis
     double _n_rods = 1.;
+    double _xtry = 5.;  // multiplier for maximum number of rods in one cell _n_max = _xtry * _n_rods
+    unsigned int avrods =0;
+    unsigned int avcount =0;
     
 public:
     int ran_sign(){
@@ -102,6 +105,8 @@ public:
         int Nrods[3]; // number of rods in certain plane, i.e. parallel to a certain axis.
         
         for (int i=0;i<3;i++){
+            // allocate enough space for vector resize.
+            _rodvec[i].reserve(_xtry * 9. * _n_rods ); //9 cells per plane
             //TODO if zerotoone()> ... MAKE Nrods[i] random
             Nrods[i] =  9. * _n_rods;// 3x3 cells in one plane -> 9*_n_rods
         }
@@ -117,47 +122,10 @@ public:
         }
     }
     
-    void updateRodsVec(int crossaxis,int exitmarker){//exitmarker is -1 for negative direction, or 1 for positive
-        //delete all polymers orthogonal to crossaxis, that are outside the box now
-        //update other polymer positions
-        int n_tries = (int) (ceil(_n_rods) * 5. + 0.001);
-        int ortho[2] = {1,2};
-        if (crossaxis == 1){
-            ortho[0]=2; 
-            ortho[1]=0;
-        }
-        else if (crossaxis == 2){
-            ortho[0]=0; 
-            ortho[1]=1;
-        }
-        // shift positions of rods
-        int plane;
-        CRod tmpRod = CRod();
-        for (int oa=0;oa<2;oa++){
-            plane = ortho[oa];
-            for (int i=0;i<_rodvec[plane].size();i++){
-                //shift rod positions parallel to crossaxis. plane is direction that the shifted rods are parallel to.
-                _rodvec[plane][i].coord[crossaxis] -= exitmarker * _boxsize;
-                if (abs(_rodvec[plane][i].coord[crossaxis] - _boxsize/2.  ) > 1.5*_boxsize) _rodvec[plane].erase(_rodvec[plane].begin() + i);
-            }
-            for (int j=0;j<n_tries;j++){
-                if (zerotoone() < _n_rods / n_tries ){ // _n_rods / n_tries is probability of placing one of n_tries new 
-                    tmpRod = CRod(plane,0.,0.);//Reset
-                    //in direction parallel to crossaxis, choose new position in side cell 
-                    tmpRod.coord[crossaxis] = (zerotoone()  + exitmarker) * _boxsize;
-                    int ortho2 = 3 - (plane * crossaxis);
-                    // in direction orthogonal to both plane and crossaxis
-                    tmpRod.coord[ortho2] = (zerotoone() * 3 -1) * _boxsize;
-                    _rodvec[plane].push_back(tmpRod);
-                }
-            }
-        }
-    }
-    // With fixed number of rods in simulation box!
 //     void updateRodsVec(int crossaxis,int exitmarker){//exitmarker is -1 for negative direction, or 1 for positive
 //         //delete all polymers orthogonal to crossaxis, that are outside the box now
 //         //update other polymer positions
-//         //double n_tries = _n_rods * 5.;
+//         int n_tries = (int) (ceil(_n_rods) * _xtry + 0.001); 
 //         int ortho[2] = {1,2};
 //         if (crossaxis == 1){
 //             ortho[0]=2; 
@@ -169,22 +137,70 @@ public:
 //         }
 //         // shift positions of rods
 //         int plane;
+//         CRod tmpRod = CRod();
 //         for (int oa=0;oa<2;oa++){
 //             plane = ortho[oa];
-//         for (int oa=0;oa<2;oa++){
-//             for (int i=0;i<_rodvec[plane].size();i++){
+//             //cout << "plane " << plane << endl;
+//             int nrods = _rodvec[plane].size();
+//             for (int i=0;i<nrods;i++){
 //                 //shift rod positions parallel to crossaxis. plane is direction that the shifted rods are parallel to.
 //                 _rodvec[plane][i].coord[crossaxis] -= exitmarker * _boxsize;
-//                 if (abs(_rodvec[plane][i].coord[crossaxis] - _boxsize/2.  ) > 1.5*_boxsize){// TODO CHECK THIS AGAIN!
+//                 if (abs(_rodvec[plane][i].coord[crossaxis] - _boxsize/2.  ) > 1.5*_boxsize){
+//                     // erase rods that have left the simulation box.
+//                     //cout << _rodvec[plane].size() << " XXX ";
+//                     _rodvec[plane].erase(_rodvec[plane].begin() + i);
+//                     //cout << _rodvec[plane].size() << endl;
+//                 }
+//             }
+//             double reln = _n_rods / n_tries;
+//             for (int j=0;j<3*n_tries;j++){// factor 3, since I reassign 3 cells per plane
+//                 if (zerotoone() < reln ){ // _n_rods / n_tries is probability of placing one of n_tries new 
+//                     tmpRod = CRod(plane,0.,0.);//Reset
 //                     //in direction parallel to crossaxis, choose new position in side cell 
-//                     _rodvec[plane][i].coord[crossaxis] = (zerotoone()  + exitmarker) * _boxsize;
-//                     int ortho2 = 3 - (plane * crossaxis);
+//                     tmpRod.coord[crossaxis] = (zerotoone()  + exitmarker) * _boxsize;
+//                     int ortho2 = 3 - (plane + crossaxis);
 //                     // in direction orthogonal to both plane and crossaxis
-//                     _rodvec[plane][i].coord[ortho2] = (zerotoone() * 3 -1) * _boxsize;// TODO CHECK THIS AGAIN! Draw a sketch
+//                     tmpRod.coord[ortho2] = (zerotoone() * 3 -1) * _boxsize;
+//                     _rodvec[plane].push_back(tmpRod);
+//                     //cout << _rodvec[plane].size() << endl;
 //                 }
 //             }
 //         }
+//         avrods += _rodvec[0].size();
+//         avcount += 1;
+//         cout << "nrods in yz plane mean: " << avrods/avcount << endl;
 //     }
+    // With fixed number of rods in simulation box!
+    void updateRodsVec(int crossaxis,int exitmarker){//exitmarker is -1 for negative direction, or 1 for positive
+        //delete all polymers orthogonal to crossaxis, that are outside the box now
+        //update other polymer positions
+        //double n_tries = _n_rods * 5.;
+        int ortho[2] = {1,2};
+        if (crossaxis == 1){
+            ortho[0]=2; 
+            ortho[1]=0;
+        }
+        else if (crossaxis == 2){
+            ortho[0]=0; 
+            ortho[1]=1;
+        }
+        // shift positions of rods
+        int plane;
+        for (int oa=0;oa<2;oa++){
+            plane = ortho[oa];
+            for (int i=0;i<_rodvec[plane].size();i++){
+                //shift rod positions parallel to crossaxis. plane is direction that the shifted rods are parallel to.
+                _rodvec[plane][i].coord[crossaxis] -= exitmarker * _boxsize;
+                if (abs(_rodvec[plane][i].coord[crossaxis] - _boxsize/2.  ) > 1.5*_boxsize){// TODO CHECK THIS AGAIN!
+                    //in direction parallel to crossaxis, choose new position in side cell 
+                    _rodvec[plane][i].coord[crossaxis] = (zerotoone()  + exitmarker) * _boxsize;
+                    int ortho2 = 3 - (plane + crossaxis);
+                    // in direction orthogonal to both plane and crossaxis
+                    _rodvec[plane][i].coord[ortho2] = (zerotoone() * 3 -1) * _boxsize;// TODO CHECK THIS AGAIN! Draw a sketch
+                }
+            }
+        }
+    }
     
     void prinRodPos(int axis){
         for (int irod=0;irod<_rodvec[axis].size();irod++){
