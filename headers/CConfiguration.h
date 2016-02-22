@@ -142,7 +142,7 @@ public:
             plane = ortho[oa];
             //cout << "plane " << plane << endl;
             int nrods = _rodvec[plane].size();
-            for (int i=0;i<nrods;i++){
+            for (int i=nrods-1;i>=0;i--){//need to count beckwards, due to erase function!
                 //shift rod positions parallel to crossaxis. plane is direction that the shifted rods are parallel to.
                 _rodvec[plane][i].coord[crossaxis] -= exitmarker * _boxsize;
                 if (abs(_rodvec[plane][i].coord[crossaxis] - _boxsize/2.  ) > 1.5*_boxsize){
