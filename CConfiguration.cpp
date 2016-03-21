@@ -44,7 +44,7 @@ CConfiguration::CConfiguration(
 
     // This is for inclusion of 2nd Order rods if k is 0.2b or larger
     _min = -1, _max = 3;
-    if (_ranRod || _ranU || _hpi || (_potRange < 2)){
+    if ( _ranU || _hpi || (_potRange < 2)){
         _min = 0;
         _max = 2;
     }
