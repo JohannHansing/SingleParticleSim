@@ -114,6 +114,7 @@ public:
             for (int i=0; i<Nrods[axis];i++){
                 // SO FAR SET INITAL RODS; SUCH THAT CENTRAL CELL * 1.7 IS EMPTY! 
                 // ran_sign()*.15*zerotoone() + 0.5 + 1.35 * ran_sign() is between .15+1.35+0.5 = 2 and -.15+1.35+0.5 = 1.7 or between .15-1.35+0.5 = -0.7 and -.15-1.35+0.5 = -1
+//more general: offset = (_boxsize/2 - _pradius)/(_boxsize/_n_cells))   --> xipos = (ran_sign()*(offset/2)*zerotoone() + 0.5 + (1.5-offset) * ran_sign() ) *_boxsize;
                 xipos = (ran_sign()*.15*zerotoone() + 0.5 + 1.35 * ran_sign() ) *_boxsize;
                 xjpos = (ran_sign()*.15*zerotoone() + 0.5 + 1.35 * ran_sign() ) *_boxsize;
                 CRod newRod = CRod(axis, xipos, xjpos );
@@ -171,7 +172,7 @@ public:
         avcount += 1;
     }
     void printAvRods(){
-        cout << "nrods in yz plane mean: " << avrods/(3*avcount) << endl;
+        cout << "nrods in yz plane mean: " << avrods/(3.*avcount) << endl;
     }
     // With fixed number of rods in simulation box!
 //     void updateRodsVec(int crossaxis,int exitmarker){//exitmarker is -1 for negative direction, or 1 for positive

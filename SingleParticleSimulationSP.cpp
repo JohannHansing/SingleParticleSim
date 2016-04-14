@@ -65,8 +65,9 @@ int main(int argc, const char* argv[]){
     
     steps = simtime/timestep;
     saveInt = steps/instantvalues;
-    const int trajout = (int)(10/timestep);
-        
+    int trajout = (int)(10/timestep);
+    //trajout = (int)(1/(3.8*30)/timestep); //30 frames per second. 1 second is 1/3.8 simulation time for p=300nm = 0.12 b with b=2500nm
+
     //Create data folders and print location as string to string "folder"
     string folder = createDataFolder(ranRod, timestep, simtime, urange, ustrength, boxsize, particlesize, rodDist, potentialMod, includeSteric, ranPot, hpi, hpi_u, hpi_k, n_rods);
 

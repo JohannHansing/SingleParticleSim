@@ -161,6 +161,8 @@ void CConfiguration::calcMobilityForces(){
     double utmp = 0, frtmp = 0;     //temporary "hilfsvariables"
     double Epot = 0;
     double z1, z2;
+    
+    int hlpr = 1;
     if (_ranU){
         z1 = 1/4 * _boxsize;
         z2 = _boxsize - z1;   //z is in cylindrical coordinates. This indicates above/below which value the exp potential is modifed for random signs.
@@ -176,11 +178,11 @@ void CConfiguration::calcMobilityForces(){
         if ( k == 3 ) k = 0;
         int plane = 3 - (i+k); //this is the current plane of the cylindrical coordinates
         int n = 0;     // reset counter for index of next rod in plane  n = 0, 1, 2, 3 -> only needed for ranPot
+        if (_ranRod) hlpr =_rodvec[plane].size();
         for (int nk = _min; nk < _max; nk++){
             for (int ni = _min; ni < _max; ni++){
-                // if !ranRod, then _rodvec[i].size() == 0 
-                for (int irod=0;irod<_rodvec[plane].size();irod++){
-                
+                // if ranRod: hlpr = _rodvec[i].size(), else hlpr == 1
+                for (int irod=0;irod<hlpr;irod++){
                     if (!_ranRod){
                         r_i = _ppos[i] - ni*_boxsize;
                         r_k = _ppos[k] - nk*_boxsize;
@@ -228,6 +230,7 @@ void CConfiguration::calcMobilityForces(){
 
 
                     if (_LJPot && ( r_abs < r_c || _hpi )) calcLJPot(r_abs, utmp, frtmp);
+                    
 
 
                     Epot += utmp;
