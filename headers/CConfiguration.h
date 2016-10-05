@@ -207,10 +207,10 @@ public:
 //     }
     
     void prinRodPos(int axis){
-        for (int irod=0;irod<_rodvec[axis].size();irod++){
-            double rx = _rodvec[axis][irod].coord[0];
-            double ry =_rodvec[axis][irod].coord[1];     
-            double rz =_rodvec[axis][irod].coord[2];
+        for (auto & rod : _rodvec[axis] ){
+            double rx = rod.coord[0];
+            double ry = rod.coord[1];     
+            double rz = rod.coord[2];
             cout << ",[" << rx << "," << ry << "," << rz << "]";
         }
         cout << "]," << endl;
