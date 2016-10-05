@@ -93,7 +93,7 @@ int main(int argc, const char* argv[]){
     string traj_file = folder + "/Coordinates/single_traj.xyz";
     if (writeTrajectory) conf.saveXYZTraj(traj_file,0,"w");
     
-    unsigned int stepcount = 0;
+    unsigned long long stepcount = 0;
     ofstream trajectoryfile;
     trajectoryfile.open((folder + "/Coordinates/trajectory.txt").c_str());
 
@@ -180,7 +180,7 @@ int main(int argc, const char* argv[]){
             if (((i % 5) == 0) && recordPosHisto) conf.addHistoValue();
 
         }
-        if ( recordPosHisto ) conf.printHistoMatrix(folder);
+        if ( ((l % 20) == 0) && recordPosHisto ) conf.printHistoMatrix(folder);
         
         
     }//----------END OF RUNS-LOOP
